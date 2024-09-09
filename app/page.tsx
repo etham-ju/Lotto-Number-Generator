@@ -19,15 +19,17 @@ export default function Home() {
 
         setError(null);
 
-        // Generate 6 Lotto numbers from UUID
-        const lottoNumbers: number[] = [];
-        for (let i = 0; i < 6; i++) {
+        const lottoNumbers = new Set<number>();
+
+        let i = 0;
+        while (lottoNumbers.size < 6) {
             const hexPart = sanitizedUuid.slice(i * 4, (i + 1) * 4);
-            const number = parseInt(hexPart, 16) % 49 + 1; // Modulo to map to 1-49
-            lottoNumbers.push(number);
+            const number = parseInt(hexPart, 16) % 45 + 1; // Modulo to map to 1-45
+            lottoNumbers.add(number); // Add the number to the set (duplicates are automatically handled)
+            i++;
         }
 
-        setNumbers(lottoNumbers);
+        setNumbers(Array.from(lottoNumbers)); // Convert the set to an array
     };
 
     const handleManualUUIDGeneration = () => {
@@ -47,7 +49,7 @@ export default function Home() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <h1 className="text-4xl font-bold mb-8">Lotto Number Generator</h1>
+            <h1 className="text-4xl font-bold mb-8">Lotto Number Generator (1-45)</h1>
 
             <div className="flex flex-col items-center space-y-4">
                 {/* Input field for user-entered UUID */}
