@@ -67,7 +67,7 @@ export default function Home() {
     return UUID_REGEX.test(uuid);
   };
 
-  const debounce = <T extends (...args: unknown[]) => void>(func: T, delay: number) => {
+  const debounce = <T extends (...args: string[]) => void>(func: T, delay: number) => {
     let timer: ReturnType<typeof setTimeout>;
     const debounced = (...args: Parameters<T>) => {
       clearTimeout(timer);
@@ -79,7 +79,7 @@ export default function Home() {
     return debounced;
   };
 
-  const debouncedSetUuidInput = debounce((value: string) => {
+  const debouncedSetUuidInput = debounce<string>((value) => {
     setUuidInput(value);
   }, 300);
 
