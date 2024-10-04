@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { validate as validateUUID } from 'uuid';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
