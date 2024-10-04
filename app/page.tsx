@@ -11,12 +11,11 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9
 export default function Home() {
   const [uuidInput, setUuidInput] = useState('');
   const [numbers, setNumbers] = useState<number[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [maxAttempts, setMaxAttempts] = useState(20);
 
   const generateLottoNumbers = (uuid: string) => {
     if (!isValidUUID(uuid)) {
-      setError('Invalid UUID v4. Please enter a valid UUID.');
+      toast.error('Invalid UUID v4. Please enter a valid UUID.');
       setNumbers([]);
       return;
     }
@@ -24,12 +23,10 @@ export default function Home() {
     const sanitizedUuid = uuid.replace(/-/g, '');
 
     if (!validateUUID(sanitizedUuid)) {
-      setError('Invalid UUID v4 after sanitization. Please enter a valid UUID.');
+      toast.error('Invalid UUID v4. Please enter a valid UUID.');
       setNumbers([]);
       return;
     }
-
-    setError(null);
 
     const lottoNumbers = new Set<number>();
 
@@ -45,7 +42,7 @@ export default function Home() {
     }
 
     if (lottoNumbers.size < 6) {
-      setError('Unable to generate sufficient unique numbers. Please try again.');
+      toast.error('Unable to generate sufficient unique numbers. Please try again.');
       setNumbers([]);
     } else {
       setNumbers(Array.from(lottoNumbers)); // Convert the set to an array
@@ -81,6 +78,7 @@ export default function Home() {
           className="border border-gray-300 p-2 rounded w-80 mb-4"
         />
 
+        <p className="text-sm text-gray-600">Max Attempts Number when UUID generation fails</p>
         {/* Input field for max attempts */}
         <input
           type="number"
@@ -113,8 +111,6 @@ export default function Home() {
           Auto-Generate UUID and Numbers
         </button>
       </div>
-
-      {error && <p className="text-red-500 mt-4">{error}</p>}
 
       {numbers.length > 0 && (
         <div className="mt-6 text-xl">
