@@ -21,13 +21,6 @@ export default function Home() {
     }
 
     const sanitizedUuid = uuid.replace(/-/g, '');
-
-    if (!validateUUID(sanitizedUuid)) {
-      toast.error('Invalid UUID v4. Please enter a valid UUID.');
-      setNumbers([]);
-      return;
-    }
-
     const lottoNumbers = new Set<number>();
 
     let i = 0;
