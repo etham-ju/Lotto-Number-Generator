@@ -67,7 +67,7 @@ export default function Home() {
     return UUID_REGEX.test(uuid);
   };
 
-  const debounce = <T extends (...args: any[]) => void>(func: T, delay: number) => {
+  const debounce = <T extends (...args: unknown[]) => void>(func: T, delay: number) => {
     let timer: ReturnType<typeof setTimeout>;
     const debounced = (...args: Parameters<T>) => {
       clearTimeout(timer);
