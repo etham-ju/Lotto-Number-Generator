@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { validate as validateUUID } from 'uuid';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -10,12 +13,6 @@ export default function Home() {
   const [numbers, setNumbers] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [maxAttempts, setMaxAttempts] = useState(20);
-
-  useEffect(() => {
-    return () => {
-      debouncedSetUuidInput.cancel();
-    };
-  }, []);
 
   const generateLottoNumbers = (uuid: string) => {
     if (!isValidUUID(uuid)) {
@@ -26,7 +23,7 @@ export default function Home() {
 
     const sanitizedUuid = uuid.replace(/-/g, '');
 
-    if (!/^[0-9a-f]{32}$/i.test(sanitizedUuid)) {
+    if (!validateUUID(sanitizedUuid)) {
       setError('Invalid UUID v4 after sanitization. Please enter a valid UUID.');
       setNumbers([]);
       return;
@@ -37,6 +34,9 @@ export default function Home() {
     const lottoNumbers = new Set<number>();
 
     let i = 0;
+    if (maxAttempts > 50) {
+      toast.warn('High maxAttempts value may cause performance issues. Consider lowering it.');
+    }
     while (lottoNumbers.size < 6 && i < maxAttempts) {
       const hexPart = sanitizedUuid.slice(i * 4, (i + 1) * 4);
       const number = parseInt(hexPart, 16) % 45 + 1; // Modulo to map to 1-45
@@ -60,28 +60,12 @@ export default function Home() {
     const generatedUUID = uuidv4();
     setUuidInput(generatedUUID); // Update input field with generated UUID
     generateLottoNumbers(generatedUUID);
-    alert('UUID has been successfully auto-generated!'); // Show a toast notification
+    toast.success('UUID has been successfully auto-generated!'); // Show a toast notification
   };
 
   const isValidUUID = (uuid: string) => {
     return UUID_REGEX.test(uuid);
   };
-
-  const debounce = <T extends (...args: any[]) => void>(func: T, delay: number) => {
-    let timer: ReturnType<typeof setTimeout>;
-    const debounced = (...args: Parameters<T>) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => func(...args), delay);
-    };
-    debounced.cancel = () => {
-      clearTimeout(timer);
-    };
-    return debounced;
-  };
-
-  const debouncedSetUuidInput = debounce((value: string) => {
-    setUuidInput(value);
-  }, 300);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -92,7 +76,7 @@ export default function Home() {
         <input
           type="text"
           value={uuidInput}
-          onChange={(e) => debouncedSetUuidInput(e.target.value)}
+          onChange={(e) => setUuidInput(e.target.value)}
           placeholder="Enter UUID v4"
           className="border border-gray-300 p-2 rounded w-80 mb-4"
         />
@@ -101,7 +85,14 @@ export default function Home() {
         <input
           type="number"
           value={maxAttempts}
-          onChange={(e) => setMaxAttempts(parseInt(e.target.value, 10))}
+          onChange={(e) => {
+            const value = parseInt(e.target.value, 10);
+            if (value > 0 && value <= 100) {
+              setMaxAttempts(value);
+            } else {
+              toast.error('Please enter a valid number between 1 and 100 for max attempts.');
+            }
+          }}
           placeholder="Max Attempts"
           className="border border-gray-300 p-2 rounded w-80 mb-4"
         />
@@ -130,6 +121,8 @@ export default function Home() {
           <p>Lotto Numbers: {numbers.join(', ')}</p>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 }
